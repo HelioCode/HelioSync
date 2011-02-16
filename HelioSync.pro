@@ -22,8 +22,7 @@ SOURCES +=  main.cpp\
             ./hes/hessynccontrollerthread.cpp \
             ./hes/hessynccontroller.cpp \
             ./functions/functions.cpp \
-            ./hes/hesdaemon.cpp \
-            ./headers/*.cpp
+            ./hes/hesdaemon.cpp
 
 HEADERS  += main.h\
             ./ui/peerwindow.h \
@@ -33,7 +32,9 @@ HEADERS  += main.h\
             ./hes/hessynccontroller.h \
             ./functions/functions.h \
             ./hes/hesdaemon.h \
-            ./headers/*.h
+            ./headers/*.h \
+            ./typedef.h \
+            ./images/HeS_Icon.png
 
 FORMS    += ./ui/peerwindow.ui
 

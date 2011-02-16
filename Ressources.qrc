@@ -1,5 +1,5 @@
 <RCC>
-    <qresource>
-        <file>HeS_Icon.png</file>
+    <qresource prefix="/">
+        <file>images/HeS_Icon.png</file>
     </qresource>
 </RCC>

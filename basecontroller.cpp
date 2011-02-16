@@ -7,7 +7,7 @@ baseController::baseController(QObject *parent) :
     QObject(parent)
 {
     trayIcon = new QSystemTrayIcon(this);
-    trayIcon->setIcon(QIcon(":/HeS_Icon.png"));
+    trayIcon->setIcon(QIcon(":/images/HeS_Icon.png"));
 
     trayMenu = new QMenu();
 
