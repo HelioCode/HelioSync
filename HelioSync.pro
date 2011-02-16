@@ -38,8 +38,6 @@ HEADERS  += main.h\
 FORMS    += ./ui/peerwindow.ui
 
 RESOURCES += Ressources.qrc\
-            ./images/HeS_Icon.png
-            ./README
 
 INCLUDEPATH +=  ./headers/ \
                 ./ui/ \
