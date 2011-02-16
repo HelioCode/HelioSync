@@ -33,12 +33,13 @@ HEADERS  += main.h\
             ./functions/functions.h \
             ./hes/hesdaemon.h \
             ./headers/*.h \
-            ./typedef.h \
-            ./images/HeS_Icon.png
+            ./typedef.h
 
 FORMS    += ./ui/peerwindow.ui
 
-RESOURCES += Ressources.qrc
+RESOURCES += Ressources.qrc\
+            ./images/HeS_Icon.png
+            ./README
 
 INCLUDEPATH +=  ./headers/ \
                 ./ui/ \
