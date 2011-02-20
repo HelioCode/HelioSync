@@ -1,0 +1,71 @@
+#include "hesfunctionpeer.h"
+
+#include "../typedef.h"
+
+#include <QCryptographicHash>
+
+#include "functions.h"
+
+HESFunctionPeer::HESFunctionPeer(QObject *parent) :
+    QObject(parent)
+{
+    server = new QTcpServer();
+    connect(server, SIGNAL(newConnection()), this, SLOT(handleConnection()));
+    server->listen(QHostAddress::Any, FUNCTIONPEER_PORT);
+}
+
+void HESFunctionPeer::handleConnection()
+{
+    QTcpSocket* socket = server->nextPendingConnection();
+    socket->waitForReadyRead();
+    QByteArray response;
+    QByteArray request = socket->read(socket->bytesAvailable());
+    if(request[0] == (char)1)
+    {
+        response.append((unsigned char)5);
+        response.append("error");
+    } else {
+        int functionNameLength = request[1];
+        QString functionName = "";
+        for(int i = 2; i < functionNameLength + 2; i++)
+        {
+            functionName += request[i];
+        }
+        QMap<QString, QString> requestParams;
+        if(request.length() > functionName.length() + 1)
+        {
+            requestParams = ByteArrayToStringMap(request.mid(functionNameLength + 2, request.size()));
+        }
+
+        response.append((char)1);
+        response.append((unsigned char)functionName.mid(0, 255).length());
+        response.append(functionName.mid(0,255));
+        if(functionName == "validate")
+        {
+            response.append(StringMapToByteArray(validate(requestParams)));
+        } else if(functionName == "getInformation")
+        {
+            response.append(StringMapToByteArray(getInformation(requestParams)));
+        }
+    }
+    socket->write(response);
+    socket->waitForBytesWritten();
+}
+
+//Function implementations
+
+QMap<QString, QString> HESFunctionPeer::validate(QMap<QString, QString> params)
+{
+    QMap<QString, QString> responseParams;
+    QByteArray randomHex = getRandomHex(8).toAscii();
+    responseParams["key"] = randomHex + QCryptographicHash::hash(randomHex + ":HeliumSync:" + params["key"].toAscii(), QCryptographicHash::Md5).toHex();
+    return responseParams;
+}
+
+QMap<QString, QString> HESFunctionPeer::getInformation(QMap<QString, QString> params)
+{
+    QMap<QString, QString> responseParams;
+    responseParams["userName"] = getUserName();
+    responseParams["computerName"] = getNetworkName();
+    return responseParams;
+}

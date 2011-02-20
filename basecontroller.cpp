@@ -30,11 +30,12 @@ baseController::baseController(QObject *parent) :
 
     peerWindowOpen = false;
 
-    listener = new HESDaemonThread();
-    listener->start();
+    functionPeer = new HESFunctionPeerThread();
+    functionPeer->start();
 
     peerWindow = new PeerWindow();
     connect(peerWindow, SIGNAL(closed()), this, SLOT(peerWindowClosed()));
+
     syncControllerThread = new HESSyncControllerThread();
     syncControllerThread->start();
     connect(syncControllerThread, SIGNAL(setupDone()), this, SLOT(syncControllerSetupDone()));

@@ -18,22 +18,23 @@ win32 {
 SOURCES +=  main.cpp\
             ./ui/peerwindow.cpp \
             basecontroller.cpp \
-            ./hes/hesdaemonthread.cpp \
             ./hes/hessynccontrollerthread.cpp \
             ./hes/hessynccontroller.cpp \
             ./functions/functions.cpp \
-            ./hes/hesdaemon.cpp
-
+            ./hes/hesfunctionpeer.cpp \
+            ./hes/hesfunctionconnection.cpp \
+    hes/hesfunctionpeerthread.cpp
 HEADERS  += main.h\
             ./ui/peerwindow.h \
             basecontroller.h \
-            ./hes/hesdaemonthread.h \
             ./hes/hessynccontrollerthread.h \
             ./hes/hessynccontroller.h \
             ./functions/functions.h \
-            ./hes/hesdaemon.h \
             ./headers/*.h \
-            ./typedef.h
+            ./typedef.h \
+            ./hes/hesfunctionpeer.h \
+            ./hes/hesfunctionconnection.h \
+    hes/hesfunctionpeerthread.h
 
 FORMS    += ./ui/peerwindow.ui
 

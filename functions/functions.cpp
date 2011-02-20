@@ -4,6 +4,8 @@
 #include <QHostInfo>
 #include <QList>
 
+#include <time.h>
+
 #include "parser.h"
 #include "serializer.h"
 
@@ -14,6 +16,8 @@
 #define USER "USER"
 #define HOME "HOME"
 #endif
+
+#include <QtDebug>
 
 QString getRandomHex(int count)
 {
@@ -71,6 +75,51 @@ QString getLocalIp()
         return local.addresses().value(1).toString();
     }
     return "";
+}
+
+QByteArray StringMapToByteArray(QMap<QString, QString> map)
+{
+    QByteArray byteArray;
+    QList<QString> keys;
+    keys = map.keys();
+    for(int i = 0; i < keys.count(); i++)
+    {
+        byteArray.append((unsigned char)keys[i].mid(0, 255).length());
+        byteArray.append(keys[i].mid(0, 255));
+        byteArray.append((unsigned char)map[keys[i]].mid(0, 255).length());
+        byteArray.append(map[keys[i]].mid(0, 255));
+    }
+    return byteArray;
+}
+
+QMap<QString, QString> ByteArrayToStringMap(QByteArray byteArray)
+{
+    QMap<QString, QString> map;
+    int pos = 0;
+    int keyLength = 0;
+    int stringLength = 0;
+    int i;
+    QString key;
+    QString string;
+    while(pos < byteArray.size())
+    {
+        key = "";
+        string = "";
+        keyLength = (unsigned char)byteArray[pos];
+        for(i = pos + 1; i < pos + keyLength + 1; i++)
+        {
+            key += byteArray[i];
+        }
+        pos += keyLength + 1;
+        stringLength = (unsigned char)byteArray[pos];
+        for(i = pos + 1; i < pos + stringLength + 1; i++)
+        {
+            string += byteArray[i];
+        }
+        pos += stringLength + 1;
+        map[key] = string;
+    }
+    return map;
 }
 
 QString createFunction(QString functionName, QMap<QString, QString> params)

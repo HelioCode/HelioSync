@@ -12,6 +12,9 @@ QString extractFilePath(QString file);
 QString getNetworkName();
 QString getLocalIp();
 
+QByteArray StringMapToByteArray(QMap<QString, QString> map);
+QMap<QString, QString> ByteArrayToStringMap(QByteArray byteArray);
+
 QString createFunction(QString functionName, QMap<QString, QString> params);
 bool parseFunction(QString json, QString& funcName, QMap<QString, QString>& params);
 

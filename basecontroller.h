@@ -6,7 +6,7 @@
 #include <QMenu>
 
 #include "peerwindow.h"
-#include "hesdaemonthread.h"
+#include "hesfunctionpeerthread.h"
 #include "hessynccontrollerthread.h"
 
 class baseController : public QObject
@@ -19,7 +19,7 @@ private:
     QMenu* trayMenu;
     PeerWindow* peerWindow;
     bool peerWindowOpen;
-    HESDaemonThread* listener;
+    HESFunctionPeerThread* functionPeer;
     HESSyncController* syncController;
     HESSyncControllerThread* syncControllerThread;
 signals:

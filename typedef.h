@@ -1,3 +1,4 @@
 typedef unsigned char byte;
 
-#define LISTEN_PORT 6431
+#define FUNCTIONPEER_PORT 6431
+#define LISTEN_PORT 6421
