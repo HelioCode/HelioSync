@@ -6,9 +6,6 @@
 
 #include <time.h>
 
-#include "parser.h"
-#include "serializer.h"
-
 #ifdef __WIN32__
 #define USER "USERNAME"
 #define HOME "HOMEPATH"
@@ -16,8 +13,6 @@
 #define USER "USER"
 #define HOME "HOME"
 #endif
-
-#include <QtDebug>
 
 QString getRandomHex(int count)
 {

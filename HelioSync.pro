@@ -9,24 +9,18 @@ QT       += core gui network
 TARGET = HelioSync
 TEMPLATE = app
 
-win32 {
-  LIBS += -lqjson0
-} else {
-  LIBS += -lqjson
-}
-
 SOURCES +=  main.cpp\
             ./ui/peerwindow.cpp \
-            basecontroller.cpp \
+            ./basecontroller.cpp \
             ./hes/hessynccontrollerthread.cpp \
             ./hes/hessynccontroller.cpp \
             ./functions/functions.cpp \
             ./hes/hesfunctionpeer.cpp \
             ./hes/hesfunctionconnection.cpp \
-    hes/hesfunctionpeerthread.cpp
+            ./hes/hesfunctionpeerthread.cpp
 HEADERS  += main.h\
             ./ui/peerwindow.h \
-            basecontroller.h \
+            ./basecontroller.h \
             ./hes/hessynccontrollerthread.h \
             ./hes/hessynccontroller.h \
             ./functions/functions.h \
@@ -34,13 +28,12 @@ HEADERS  += main.h\
             ./typedef.h \
             ./hes/hesfunctionpeer.h \
             ./hes/hesfunctionconnection.h \
-    hes/hesfunctionpeerthread.h
+            ./hes/hesfunctionpeerthread.h
 
 FORMS    += ./ui/peerwindow.ui
 
 RESOURCES += Ressources.qrc\
 
-INCLUDEPATH +=  ./headers/ \
-                ./ui/ \
+INCLUDEPATH +=  ./ui/ \
                 ./hes/ \
                 ./functions/
