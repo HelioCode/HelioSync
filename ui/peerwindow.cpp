@@ -9,6 +9,11 @@ PeerWindow::PeerWindow(QWidget *parent) :
     ui(new Ui::PeerWindow)
 {
     ui->setupUi(this);
+    QStringList newItem;
+    newItem << "192.168.0.255" << "" << "";
+    ui->twIps->addTopLevelItem(new QTreeWidgetItem(newItem, 0));
+    ui->twIps->resizeColumnToContents(0);
+    ui->twIps->clear();
 }
 
 void PeerWindow::closeEvent(QCloseEvent *)
