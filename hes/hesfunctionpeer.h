@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QUdpSocket>
 
 class HESFunctionPeer : public QObject
 {
@@ -12,6 +13,7 @@ public:
     explicit HESFunctionPeer(QObject *parent = 0);
 private:
     QTcpServer* server;
+    QUdpSocket* udpSocket;
 
     QMap<QString, QString> validate(QMap<QString, QString> params);
     QMap<QString, QString> getInformation(QMap<QString, QString> params);
@@ -19,6 +21,7 @@ signals:
 
 public slots:
     void handleConnection();
+    void processPendingDatagrams();
 };
 
 #endif // HESFUNCTIONPEER_H

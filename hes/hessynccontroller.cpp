@@ -6,6 +6,7 @@
 #include <QVariantList>
 #include <QCryptographicHash>
 #include <QHostAddress>
+#include <QUdpSocket>
 
 #include <math.h>
 
@@ -35,6 +36,7 @@ bool HESSyncController::validateIp(QString ip)
     process->start("ping", args);
     process->waitForFinished(5000);
     QString output = process->readAllStandardOutput();
+    qDebug() << output[output.length() - 3];
     if(output[output.length() - 3] != 'm')
         return false;
 
@@ -56,7 +58,9 @@ PeerInformation HESSyncController::retrieveInformation(QString ip)
 
 void HESSyncController::getSyncablePeers()
 {
-    bool validation;
+    QUdpSocket* udpSocket = new QUdpSocket(this);
+    udpSocket->writeDatagram(QByteArray("bla"), QHostAddress::Broadcast, 5678);
+    /*bool validation;
     QString ip;
     int i = 1;
     QString subnet = getLocalIp();
@@ -92,7 +96,7 @@ void HESSyncController::getSyncablePeers()
             continue;
         }
     }
-    stopRequest = false;
+    stopRequest = false;*/
 }
 
 void HESSyncController::addIpToQueue(QString ip)

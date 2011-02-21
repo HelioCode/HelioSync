@@ -3,6 +3,7 @@
 #include "../typedef.h"
 
 #include <QCryptographicHash>
+#include <QtDebug>
 
 #include "functions.h"
 
@@ -12,6 +13,9 @@ HESFunctionPeer::HESFunctionPeer(QObject *parent) :
     server = new QTcpServer();
     connect(server, SIGNAL(newConnection()), this, SLOT(handleConnection()));
     server->listen(QHostAddress::Any, FUNCTIONPEER_PORT);
+    udpSocket = new QUdpSocket(this);
+    udpSocket->bind(5678, QUdpSocket::ShareAddress);
+    connect(udpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 }
 
 void HESFunctionPeer::handleConnection()
@@ -50,6 +54,18 @@ void HESFunctionPeer::handleConnection()
     }
     socket->write(response);
     socket->waitForBytesWritten();
+}
+
+void HESFunctionPeer::processPendingDatagrams()
+{
+    while (udpSocket->hasPendingDatagrams()) {
+        QByteArray datagram;
+        datagram.resize(udpSocket->pendingDatagramSize());
+        QHostAddress host;
+        udpSocket->readDatagram(datagram.data(), datagram.size(), &host);
+        qDebug() << "bla";
+        qDebug() << host;
+    }
 }
 
 //Function implementations
