@@ -4,13 +4,14 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QMap>
+#include <QHostAddress>
 
 class HESFunctionConnection : public QObject
 {
     Q_OBJECT
 public:
     explicit HESFunctionConnection(QObject *parent = 0);
-    bool connectToPeer(QString ip);
+    bool connectToPeer(QHostAddress ip);
 
     bool validate();
     bool getInformation(QString& computerName, QString& userName);

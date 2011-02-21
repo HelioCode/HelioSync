@@ -22,31 +22,20 @@ HESSyncController::HESSyncController(QObject *parent) :
     QObject(parent)
 {
     stopRequest = false;
+    peerServer = new QTcpServer();
+    connect(peerServer, SIGNAL(newConnection()), this, SLOT(handlePeerConnection()));
+    peerServer->listen(QHostAddress::Any, PEERNOTIFYING_PORT);
 }
 
-bool HESSyncController::validateIp(QString ip)
+bool HESSyncController::validateIp(QHostAddress ip)
 {
-    QProcess* process = new QProcess(this);
-    QStringList args;
-#ifndef __WIN32__
-    args << "-c" << "1" << "-W" << "1" << ip;
-#else
-    args << "-n" << "1" << "-w" << "1" << ip;
-#endif
-    process->start("ping", args);
-    process->waitForFinished(5000);
-    QString output = process->readAllStandardOutput();
-    qDebug() << output[output.length() - 3];
-    if(output[output.length() - 3] != 'm')
-        return false;
-
     HESFunctionConnection functionConnection;
     if(!functionConnection.connectToPeer(ip))
         return false;
     return functionConnection.validate();
 }
 
-PeerInformation HESSyncController::retrieveInformation(QString ip)
+PeerInformation HESSyncController::retrieveInformation(QHostAddress ip)
 {
     PeerInformation peerInformation;
     HESFunctionConnection functionConnection;
@@ -59,47 +48,21 @@ PeerInformation HESSyncController::retrieveInformation(QString ip)
 void HESSyncController::getSyncablePeers()
 {
     QUdpSocket* udpSocket = new QUdpSocket(this);
-    udpSocket->writeDatagram(QByteArray("bla"), QHostAddress::Broadcast, 5678);
-    /*bool validation;
-    QString ip;
-    int i = 1;
-    QString subnet = getLocalIp();
-    for(unsigned int i = subnet.length() - 1; i >= 0; i--)
-    {
-        if(subnet[i] == '.')
-        {
-            subnet = subnet.mid(0, i + 1);
-            break;
-        }
-    }
-    while(i <= 255)
-    {
-        if(stopRequest)
-            break;
-        if(ipQueue.count() != 0)
-        {
-            ip = ipQueue[0];
-            ipQueue.removeFirst();
-        } else {
-            ip = subnet + QString::number(i);
-            i++;
-        }
-        validation = validateIp(ip);
-        if(stopRequest)
-            break;
-        emit newProcessState(round(i/255.0*1000.0));
-        if(validation)
-        {
-            PeerInformation peerInformation = retrieveInformation(ip);
-            emit foundSyncablePeer(ip, peerInformation.computerName, peerInformation.userName);
-        } else {
-            continue;
-        }
-    }
-    stopRequest = false;*/
+    udpSocket->writeDatagram(QByteArray("peer"), QHostAddress::Broadcast, 5678);
+
 }
 
 void HESSyncController::addIpToQueue(QString ip)
 {
     ipQueue.append(ip);
+}
+
+void HESSyncController::handlePeerConnection()
+{
+    QTcpSocket* socket = peerServer->nextPendingConnection();
+    if(validateIp(socket->peerAddress()))
+    {
+        PeerInformation peerInformation = retrieveInformation(socket->peerAddress());
+        emit foundSyncablePeer(socket->peerAddress().toString(), peerInformation.computerName, peerInformation.userName);
+    }
 }

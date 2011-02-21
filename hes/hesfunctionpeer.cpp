@@ -13,7 +13,7 @@ HESFunctionPeer::HESFunctionPeer(QObject *parent) :
     server = new QTcpServer();
     connect(server, SIGNAL(newConnection()), this, SLOT(handleConnection()));
     server->listen(QHostAddress::Any, FUNCTIONPEER_PORT);
-    udpSocket = new QUdpSocket(this);
+    udpSocket = new QUdpSocket();
     udpSocket->bind(5678, QUdpSocket::ShareAddress);
     connect(udpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 }
@@ -63,8 +63,9 @@ void HESFunctionPeer::processPendingDatagrams()
         datagram.resize(udpSocket->pendingDatagramSize());
         QHostAddress host;
         udpSocket->readDatagram(datagram.data(), datagram.size(), &host);
-        qDebug() << "bla";
-        qDebug() << host;
+        QTcpSocket* socket = new QTcpSocket();
+        socket->connectToHost(host, PEERNOTIFYING_PORT);
+        socket->disconnect();
     }
 }
 

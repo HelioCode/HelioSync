@@ -11,7 +11,7 @@ HESFunctionConnection::HESFunctionConnection(QObject *parent) :
     socket = NULL;
 }
 
-bool HESFunctionConnection::connectToPeer(QString ip)
+bool HESFunctionConnection::connectToPeer(QHostAddress ip)
 {
     if(socket != NULL)
     {
