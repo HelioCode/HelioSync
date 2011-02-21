@@ -15,6 +15,8 @@
 
 #include "hesfunctionconnection.h"
 
+#include <QtDebug>
+
 HESSyncController::HESSyncController(QObject *parent) :
     QObject(parent)
 {
@@ -25,7 +27,7 @@ bool HESSyncController::validateIp(QString ip)
 {
     QProcess* process = new QProcess(this);
     QStringList args;
-#ifndef WIN32
+#ifndef __WIN32__
     args << "-c" << "1" << "-W" << "1" << ip;
 #else
     args << "-n" << "1" << "-w" << "1" << ip;
@@ -57,6 +59,15 @@ void HESSyncController::getSyncablePeers()
     bool validation;
     QString ip;
     int i = 1;
+    QString subnet = getLocalIp();
+    for(unsigned int i = subnet.length() - 1; i >= 0; i--)
+    {
+        if(subnet[i] == '.')
+        {
+            subnet = subnet.mid(0, i + 1);
+            break;
+        }
+    }
     while(i <= 255)
     {
         if(stopRequest)
@@ -66,7 +77,7 @@ void HESSyncController::getSyncablePeers()
             ip = ipQueue[0];
             ipQueue.removeFirst();
         } else {
-            ip = "192.168.0." + QString::number(i);
+            ip = subnet + QString::number(i);
             i++;
         }
         validation = validateIp(ip);
