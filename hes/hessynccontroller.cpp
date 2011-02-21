@@ -25,7 +25,11 @@ bool HESSyncController::validateIp(QString ip)
 {
     QProcess* process = new QProcess(this);
     QStringList args;
+#ifndef WIN32
     args << "-c" << "1" << "-W" << "1" << ip;
+#else
+    args << "-n" << "1" << "-w" << "1" << ip;
+#endif
     process->start("ping", args);
     process->waitForFinished(5000);
     QString output = process->readAllStandardOutput();
