@@ -26,10 +26,9 @@ private:
     QTcpServer* peerServer;
 signals:
     void foundSyncablePeer(QString ip, QString computerName, QString userName);
-    void newProcessState(int process);
 public slots:
     void getSyncablePeers();
-    void addIpToQueue(QString ip);
+    void addIpToQueue(QHostAddress ip);
     void handlePeerConnection();
 };
 

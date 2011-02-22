@@ -2,6 +2,7 @@
 #define PEERWINDOW_H
 
 #include <QMainWindow>
+#include <QHostAddress>
 
 namespace Ui {
     class PeerWindow;
@@ -21,11 +22,10 @@ public slots:
     void on_pbAddIp_clicked();
     void on_twIps_clicked();
     void displaySyncablePeer(QString ip, QString computerName, QString userName);
-    void displayProcessState(int process);
     void restore();
 signals:
     void closed();
-    void addIp(QString ip);
+    void addIp(QHostAddress ip);
 };
 
 #endif // PEERWINDOW_H

@@ -44,10 +44,9 @@ baseController::baseController(QObject *parent) :
 void baseController::syncControllerSetupDone()
 {
     syncController = syncControllerThread->syncController;
-    connect(syncController, SIGNAL(newProcessState(int)), peerWindow, SLOT(displayProcessState(int)), Qt::QueuedConnection);
     connect(syncController, SIGNAL(foundSyncablePeer(QString, QString, QString)), peerWindow, SLOT(displaySyncablePeer(QString, QString, QString)), Qt::QueuedConnection);
     connect(this, SIGNAL(getSyncablePeers()), syncController, SLOT(getSyncablePeers()), Qt::QueuedConnection);
-    connect(peerWindow, SIGNAL(addIp(QString)), syncController, SLOT(addIpToQueue(QString)), Qt::DirectConnection);
+    connect(peerWindow, SIGNAL(addIp(QHostAddress)), syncController, SLOT(addIpToQueue(QHostAddress)), Qt::QueuedConnection);
 }
 
 void baseController::startSync()

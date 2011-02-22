@@ -52,9 +52,13 @@ void HESSyncController::getSyncablePeers()
 
 }
 
-void HESSyncController::addIpToQueue(QString ip)
+void HESSyncController::addIpToQueue(QHostAddress ip)
 {
-    ipQueue.append(ip);
+    if(validateIp(ip))
+    {
+        PeerInformation peerInformation = retrieveInformation(ip);
+        emit foundSyncablePeer(ip.toString(), peerInformation.computerName, peerInformation.userName);
+    }
 }
 
 void HESSyncController::handlePeerConnection()
