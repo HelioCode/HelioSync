@@ -37,11 +37,28 @@ void PeerWindow::on_twIps_clicked()
     ui->pbContinue->setEnabled(true);
 }
 
+void PeerWindow::on_pbUpdate_clicked()
+{
+    emit updatePeers();
+}
+
 void PeerWindow::displaySyncablePeer(QString ip, QString computerName, QString userName)
 {
     QStringList newItem;
     newItem << ip << computerName << userName;
     ui->twIps->addTopLevelItem(new QTreeWidgetItem(newItem, 0));
+}
+
+void PeerWindow::removeSyncablePeer(QString ip)
+{
+    for(unsigned int i = 0; i < ui->twIps->topLevelItemCount(); i++)
+    {
+        if(ui->twIps->topLevelItem(i)->text(0) == ip)
+        {
+            ui->twIps->takeTopLevelItem(i);
+            break;
+        }
+    }
 }
 
 void PeerWindow::restore()

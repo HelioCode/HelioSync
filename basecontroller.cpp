@@ -45,8 +45,10 @@ void baseController::syncControllerSetupDone()
 {
     syncController = syncControllerThread->syncController;
     connect(syncController, SIGNAL(foundSyncablePeer(QString, QString, QString)), peerWindow, SLOT(displaySyncablePeer(QString, QString, QString)), Qt::QueuedConnection);
+    connect(syncController, SIGNAL(removeSyncablePeer(QString)), peerWindow, SLOT(removeSyncablePeer(QString)), Qt::QueuedConnection);
     connect(this, SIGNAL(getSyncablePeers()), syncController, SLOT(getSyncablePeers()), Qt::QueuedConnection);
     connect(peerWindow, SIGNAL(addIp(QHostAddress)), syncController, SLOT(addIpToQueue(QHostAddress)), Qt::QueuedConnection);
+    connect(peerWindow, SIGNAL(updatePeers()), syncController, SLOT(updateSyncablePeers()), Qt::QueuedConnection);
 }
 
 void baseController::startSync()
@@ -58,5 +60,5 @@ void baseController::startSync()
 void baseController::peerWindowClosed()
 {
     peerWindow->restore();
-    syncController->stopRequest = true;
+    syncController->stopGettingSyncableIps();
 }

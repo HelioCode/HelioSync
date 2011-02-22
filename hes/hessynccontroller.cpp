@@ -7,10 +7,9 @@
 #include <QCryptographicHash>
 #include <QHostAddress>
 #include <QUdpSocket>
+#include <QTcpSocket>
 
 #include <math.h>
-
-#include "typedef.h"
 
 #include "functions.h"
 
@@ -21,10 +20,10 @@
 HESSyncController::HESSyncController(QObject *parent) :
     QObject(parent)
 {
-    stopRequest = false;
     peerServer = new QTcpServer();
     connect(peerServer, SIGNAL(newConnection()), this, SLOT(handlePeerConnection()));
-    peerServer->listen(QHostAddress::Any, PEERNOTIFYING_PORT);
+    timer = new QTimer();
+    connect(timer, SIGNAL(timeout()), this, SLOT(timerInterval()));
 }
 
 bool HESSyncController::validateIp(QHostAddress ip)
@@ -42,6 +41,7 @@ PeerInformation HESSyncController::retrieveInformation(QHostAddress ip)
     if(!functionConnection.connectToPeer(ip))
         return peerInformation;
     functionConnection.getInformation(peerInformation.computerName, peerInformation.userName);
+    peerInformation.Ip = ip.toString();
     return peerInformation;
 }
 
@@ -49,7 +49,9 @@ void HESSyncController::getSyncablePeers()
 {
     QUdpSocket* udpSocket = new QUdpSocket(this);
     udpSocket->writeDatagram(QByteArray("peer"), QHostAddress::Broadcast, 5678);
-
+    peerServer->listen(QHostAddress::Any, PEERNOTIFYING_PORT);
+    timer->start(5000);
+    timerState = 0;
 }
 
 void HESSyncController::addIpToQueue(QHostAddress ip)
@@ -57,7 +59,20 @@ void HESSyncController::addIpToQueue(QHostAddress ip)
     if(validateIp(ip))
     {
         PeerInformation peerInformation = retrieveInformation(ip);
-        emit foundSyncablePeer(ip.toString(), peerInformation.computerName, peerInformation.userName);
+        bool alreadyFoundPeer = false;
+        foundPeers.append(peerInformation);
+        for(unsigned int i = 0; i < oldFoundPeers.count(); i++)
+        {
+            if(oldFoundPeers[i].Ip == peerInformation.Ip)
+            {
+                alreadyFoundPeer = true;
+                break;
+            }
+        }
+        if(!alreadyFoundPeer)
+        {
+            emit foundSyncablePeer(peerInformation.Ip, peerInformation.computerName, peerInformation.userName);
+        }
     }
 }
 
@@ -67,6 +82,72 @@ void HESSyncController::handlePeerConnection()
     if(validateIp(socket->peerAddress()))
     {
         PeerInformation peerInformation = retrieveInformation(socket->peerAddress());
-        emit foundSyncablePeer(socket->peerAddress().toString(), peerInformation.computerName, peerInformation.userName);
+        foundPeers.append(peerInformation);
+        bool alreadyFoundPeer = false;
+        for(unsigned int i = 0; i < oldFoundPeers.count(); i++)
+        {
+            if(oldFoundPeers[i].Ip == peerInformation.Ip)
+            {
+                alreadyFoundPeer = true;
+                break;
+            }
+        }
+        if(!alreadyFoundPeer)
+        {
+            emit foundSyncablePeer(peerInformation.Ip, peerInformation.computerName, peerInformation.userName);
+        }
     }
+}
+
+void HESSyncController::timerInterval()
+{
+    if(timerState == 0)
+    {
+        peerServer->close();
+        bool found = false;
+        for(int i = oldFoundPeers.count() - 1; i >= 0; i--)
+        {
+            found = false;
+            for(int j = foundPeers.count() - 1; j >= 0; j--)
+            {
+                if(oldFoundPeers[i].Ip == foundPeers[j].Ip)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found)
+            {
+                emit removeSyncablePeer(oldFoundPeers[i].Ip);
+            }
+        }
+        oldFoundPeers = foundPeers;
+        foundPeers.clear();
+        timerState = 1;
+    } else if(timerState == 1) {
+        QUdpSocket* udpSocket = new QUdpSocket(this);
+        udpSocket->writeDatagram(QByteArray("peer"), QHostAddress::Broadcast, 5678);
+        peerServer->listen(QHostAddress::Any, PEERNOTIFYING_PORT);
+        timerState = 0;
+    }
+}
+
+void HESSyncController::updateSyncablePeers()
+{
+    timer->stop();
+    peerServer->close();
+    oldFoundPeers = foundPeers;
+    QUdpSocket* udpSocket = new QUdpSocket(this);
+    udpSocket->writeDatagram(QByteArray("peer"), QHostAddress::Broadcast, 5678);
+    peerServer->listen(QHostAddress::Any, PEERNOTIFYING_PORT);
+    timer->start(5000);
+    timerState = 0;
+}
+
+void HESSyncController::stopGettingSyncableIps()
+{
+    timer->stop();
+    peerServer->close();
+    oldFoundPeers.clear();
+    foundPeers.clear();
 }
