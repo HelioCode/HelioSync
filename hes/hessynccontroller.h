@@ -28,7 +28,7 @@ signals:
 public slots:
     void getSyncablePeers();
     void updateSyncablePeers();
-    void addIpToQueue(QHostAddress ip);
+    void addIp(QHostAddress ip);
     void handlePeerConnection();
     void stopGettingSyncableIps();
 private slots:

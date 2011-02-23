@@ -54,13 +54,13 @@ void HESSyncController::getSyncablePeers()
     timerState = 0;
 }
 
-void HESSyncController::addIpToQueue(QHostAddress ip)
+void HESSyncController::addIp(QHostAddress ip)
 {
     if(validateIp(ip))
     {
         PeerInformation peerInformation = retrieveInformation(ip);
-        bool alreadyFoundPeer = false;
         foundPeers.append(peerInformation);
+        bool alreadyFoundPeer = false;
         for(unsigned int i = 0; i < oldFoundPeers.count(); i++)
         {
             if(oldFoundPeers[i].Ip == peerInformation.Ip)
