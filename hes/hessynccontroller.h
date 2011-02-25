@@ -14,17 +14,19 @@ class HESSyncController : public QObject
     Q_OBJECT
 public:
     explicit HESSyncController(QObject *parent = 0);
-    bool validateIp(QHostAddress ip);
-    PeerInformation retrieveInformation(QHostAddress ip);
+    bool validateIp(QHostAddress address);
+    PeerInformation retrieveInformation(QHostAddress address);
 private:
     QTcpServer* peerServer;
     QTimer* timer;
     byte timerState;
     QList<PeerInformation> foundPeers;
-    QList<PeerInformation> oldFoundPeers;
+    QList<PeerInformation> displayedPeers;
 signals:
     void foundSyncablePeer(QString ip, QString computerName, QString userName);
     void removeSyncablePeer(QString ip);
+    void syncablePeer(PeerInformation peerInformation);
+    void rSyncablePeer(QHostAddress address);
 public slots:
     void getSyncablePeers();
     void updateSyncablePeers();
@@ -33,6 +35,8 @@ public slots:
     void stopGettingSyncableIps();
 private slots:
     void timerInterval();
+    void _syncablePeer(PeerInformation peerInformation);
+    void _rSyncablePeer(QHostAddress address);
 };
 
 #endif // HESSYNCCONTROLLER_H

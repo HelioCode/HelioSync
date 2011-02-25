@@ -8,10 +8,11 @@ typedef unsigned char byte;
 #define LISTEN_PORT 6421
 
 #include <QtGui>
+#include <QHostAddress>
 
 struct PeerInformation
 {
-    QString Ip;
+    QHostAddress address;
     QString computerName;
     QString userName;
 };

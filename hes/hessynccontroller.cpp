@@ -24,6 +24,8 @@ HESSyncController::HESSyncController(QObject *parent) :
     connect(peerServer, SIGNAL(newConnection()), this, SLOT(handlePeerConnection()));
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(timerInterval()));
+    connect(this, SIGNAL(syncablePeer(PeerInformation)), this, SLOT(_syncablePeer(PeerInformation)));
+    connect(this, SIGNAL(rSyncablePeer(QHostAddress)), this, SLOT(_rSyncablePeer(QHostAddress)));
 }
 
 bool HESSyncController::validateIp(QHostAddress ip)
@@ -34,14 +36,14 @@ bool HESSyncController::validateIp(QHostAddress ip)
     return functionConnection.validate();
 }
 
-PeerInformation HESSyncController::retrieveInformation(QHostAddress ip)
+PeerInformation HESSyncController::retrieveInformation(QHostAddress address)
 {
     PeerInformation peerInformation;
     HESFunctionConnection functionConnection;
-    if(!functionConnection.connectToPeer(ip))
+    if(!functionConnection.connectToPeer(address))
         return peerInformation;
     functionConnection.getInformation(peerInformation.computerName, peerInformation.userName);
-    peerInformation.Ip = ip.toString();
+    peerInformation.address = address;
     return peerInformation;
 }
 
@@ -54,25 +56,13 @@ void HESSyncController::getSyncablePeers()
     timerState = 0;
 }
 
-void HESSyncController::addIp(QHostAddress ip)
+void HESSyncController::addIp(QHostAddress address)
 {
-    if(validateIp(ip))
+    if(validateIp(address))
     {
-        PeerInformation peerInformation = retrieveInformation(ip);
+        PeerInformation peerInformation = retrieveInformation(address);
         foundPeers.append(peerInformation);
-        bool alreadyFoundPeer = false;
-        for(unsigned int i = 0; i < oldFoundPeers.count(); i++)
-        {
-            if(oldFoundPeers[i].Ip == peerInformation.Ip)
-            {
-                alreadyFoundPeer = true;
-                break;
-            }
-        }
-        if(!alreadyFoundPeer)
-        {
-            emit foundSyncablePeer(peerInformation.Ip, peerInformation.computerName, peerInformation.userName);
-        }
+        emit syncablePeer(peerInformation);
     }
 }
 
@@ -83,19 +73,7 @@ void HESSyncController::handlePeerConnection()
     {
         PeerInformation peerInformation = retrieveInformation(socket->peerAddress());
         foundPeers.append(peerInformation);
-        bool alreadyFoundPeer = false;
-        for(unsigned int i = 0; i < oldFoundPeers.count(); i++)
-        {
-            if(oldFoundPeers[i].Ip == peerInformation.Ip)
-            {
-                alreadyFoundPeer = true;
-                break;
-            }
-        }
-        if(!alreadyFoundPeer)
-        {
-            emit foundSyncablePeer(peerInformation.Ip, peerInformation.computerName, peerInformation.userName);
-        }
+        emit syncablePeer(peerInformation);
     }
 }
 
@@ -104,24 +82,28 @@ void HESSyncController::timerInterval()
     if(timerState == 0)
     {
         peerServer->close();
-        bool found = false;
-        for(int i = oldFoundPeers.count() - 1; i >= 0; i--)
+        bool foundPeer = false;
+        QList<int> toRemove;
+        for(int i = 0; i < displayedPeers.count(); i++)
         {
-            found = false;
-            for(int j = foundPeers.count() - 1; j >= 0; j--)
+            foundPeer = false;
+            for(int j = 0; j < foundPeers.count(); j++)
             {
-                if(oldFoundPeers[i].Ip == foundPeers[j].Ip)
+                if(displayedPeers[i].address.toString() == foundPeers[j].address.toString())
                 {
-                    found = true;
+                    foundPeer = true;
                     break;
                 }
             }
-            if(!found)
+            if(!foundPeer)
             {
-                emit removeSyncablePeer(oldFoundPeers[i].Ip);
+                toRemove.append(i);
             }
         }
-        oldFoundPeers = foundPeers;
+        for(int i = 0; i < toRemove.count(); i++)
+        {
+            emit rSyncablePeer(displayedPeers[toRemove[i]].address);
+        }
         foundPeers.clear();
         timerState = 1;
     } else if(timerState == 1) {
@@ -132,11 +114,45 @@ void HESSyncController::timerInterval()
     }
 }
 
+void HESSyncController::_syncablePeer(PeerInformation peerInformation)
+{
+    bool peerDisplayed = false;
+    for(int i = 0; i < displayedPeers.count(); i++)
+    {
+        if(displayedPeers[i].address.toString() == peerInformation.address.toString())
+        {
+            peerDisplayed = true;
+            break;
+        }
+    }
+    if(!peerDisplayed)
+    {
+        displayedPeers.append(peerInformation);
+        emit foundSyncablePeer(peerInformation.address.toString(), peerInformation.computerName, peerInformation.userName);
+    }
+}
+
+void HESSyncController::_rSyncablePeer(QHostAddress address)
+{
+    QList<int> toDelete;
+    for(int i = 0; i < displayedPeers.count(); i++)
+    {
+        if(displayedPeers[i].address.toString() == address.toString())
+        {
+            toDelete.append(i);
+            emit removeSyncablePeer(displayedPeers[i].address.toString());
+        }
+    }
+    for(int i = 0; i < toDelete.count(); i++)
+    {
+        displayedPeers.removeAt(toDelete[i]);
+    }
+}
+
 void HESSyncController::updateSyncablePeers()
 {
     timer->stop();
     peerServer->close();
-    oldFoundPeers = foundPeers;
     QUdpSocket* udpSocket = new QUdpSocket(this);
     udpSocket->writeDatagram(QByteArray("peer"), QHostAddress::Broadcast, 5678);
     peerServer->listen(QHostAddress::Any, PEERNOTIFYING_PORT);
@@ -148,6 +164,7 @@ void HESSyncController::stopGettingSyncableIps()
 {
     timer->stop();
     peerServer->close();
-    oldFoundPeers.clear();
+    displayedPeers.clear();
+    foundPeers.clear();
     foundPeers.clear();
 }
