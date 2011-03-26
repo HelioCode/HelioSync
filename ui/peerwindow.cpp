@@ -32,14 +32,24 @@ void PeerWindow::on_pbAddIp_clicked()
     emit addIp(QHostAddress(ip));
 }
 
-void PeerWindow::on_twIps_clicked()
+void PeerWindow::on_twIps_itemClicked(QTreeWidgetItem* item, int column)
 {
     ui->pbContinue->setEnabled(true);
+}
+
+void PeerWindow::on_twIps_itemDoubleClicked(QTreeWidgetItem* item, int column)
+{
+    emit syncPeer(QHostAddress(item->text(0)));
 }
 
 void PeerWindow::on_pbUpdate_clicked()
 {
     emit updatePeers();
+}
+
+void PeerWindow::on_pbContinue_clicked()
+{
+    emit syncPeer(QHostAddress(ui->twIps->selectedItems()[0]->text(0)));
 }
 
 void PeerWindow::displaySyncablePeer(QString ip, QString computerName, QString userName)

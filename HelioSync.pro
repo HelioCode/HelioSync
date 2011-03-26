@@ -9,31 +9,33 @@ QT       += core gui network
 TARGET = HelioSync
 TEMPLATE = app
 
-SOURCES +=  main.cpp\
+SOURCES +=  main.cpp \
             ./ui/peerwindow.cpp \
+            ./ui/syncwindow.cpp \
             ./basecontroller.cpp \
-            ./hes/hessynccontrollerthread.cpp \
-            ./hes/hessynccontroller.cpp \
+            ./hes/hesinformationcontrollerthread.cpp \
+            ./hes/hesinformationcontroller.cpp \
             ./functions/functions.cpp \
             ./hes/hesfunctionpeer.cpp \
             ./hes/hesfunctionconnection.cpp \
             ./hes/hesfunctionpeerthread.cpp
 HEADERS  += main.h\
             ./ui/peerwindow.h \
+            ./ui/syncwindow.h \
             ./basecontroller.h \
-            ./hes/hessynccontrollerthread.h \
-            ./hes/hessynccontroller.h \
+            ./hes/hesinformationcontrollerthread.h \
+            ./hes/hesinformationcontroller.h \
             ./functions/functions.h \
-            ./headers/*.h \
             ./typedef.h \
             ./hes/hesfunctionpeer.h \
             ./hes/hesfunctionconnection.h \
             ./hes/hesfunctionpeerthread.h
+FORMS    += ./ui/peerwindow.ui \
+            ./ui/syncwindow.ui
 
-FORMS    += ./ui/peerwindow.ui
-
-RESOURCES += Ressources.qrc\
+RESOURCES += Ressources.qrc
 
 INCLUDEPATH +=  ./ui/ \
                 ./hes/ \
-                ./functions/
+                ./functions/ \
+                ./headers/

@@ -12,10 +12,10 @@ baseController::baseController(QObject *parent) :
     trayMenu = new QMenu();
 
     QAction* syncAction = new QAction("Synchronize", this);
-    connect(syncAction, SIGNAL(triggered()), this, SLOT(startSync()));
+    connect(syncAction, SIGNAL(triggered()), this, SLOT(showPeerWindow()));
     trayMenu->addAction(syncAction);
 #ifndef __APPLE__
-    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(startSync()));
+    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(showPeerWindow()));
 #endif
 
     trayMenu->addSeparator();
@@ -28,15 +28,16 @@ baseController::baseController(QObject *parent) :
 
     trayIcon->show();
 
-    peerWindowOpen = false;
-
     functionPeer = new HESFunctionPeerThread();
     functionPeer->start();
 
     peerWindow = new PeerWindow();
     connect(peerWindow, SIGNAL(closed()), this, SLOT(peerWindowClosed()));
+    connect(peerWindow, SIGNAL(syncPeer(QHostAddress)), this, SLOT(syncPeer(QHostAddress)));
 
-    syncControllerThread = new HESSyncControllerThread();
+    syncWindow = new SyncWindow();
+
+    syncControllerThread = new HESInformationControllerThread();
     syncControllerThread->start();
     connect(syncControllerThread, SIGNAL(setupDone()), this, SLOT(syncControllerSetupDone()));
 }
@@ -51,7 +52,7 @@ void baseController::syncControllerSetupDone()
     connect(peerWindow, SIGNAL(updatePeers()), syncController, SLOT(updateSyncablePeers()), Qt::QueuedConnection);
 }
 
-void baseController::startSync()
+void baseController::showPeerWindow()
 {
     peerWindow->show();
     emit getSyncablePeers();
@@ -61,4 +62,10 @@ void baseController::peerWindowClosed()
 {
     peerWindow->restore();
     syncController->stopGettingSyncableIps();
+}
+
+void baseController::syncPeer(QHostAddress peer)
+{
+    peerWindow->hide();
+    syncWindow->show();
 }

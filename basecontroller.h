@@ -6,8 +6,9 @@
 #include <QMenu>
 
 #include "peerwindow.h"
+#include "syncwindow.h"
 #include "hesfunctionpeerthread.h"
-#include "hessynccontrollerthread.h"
+#include "hesinformationcontrollerthread.h"
 
 class baseController : public QObject
 {
@@ -18,16 +19,17 @@ private:
     QSystemTrayIcon* trayIcon;
     QMenu* trayMenu;
     PeerWindow* peerWindow;
-    bool peerWindowOpen;
+    SyncWindow* syncWindow;
     HESFunctionPeerThread* functionPeer;
-    HESSyncController* syncController;
-    HESSyncControllerThread* syncControllerThread;
+    HESInformationController* syncController;
+    HESInformationControllerThread* syncControllerThread;
 signals:
     void getSyncablePeers();
 public slots:
     void syncControllerSetupDone();
-    void startSync();
+    void showPeerWindow();
     void peerWindowClosed();
+    void syncPeer(QHostAddress peer);
 };
 
 #endif // BASECONTROLLER_H
