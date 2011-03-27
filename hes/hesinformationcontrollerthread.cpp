@@ -9,7 +9,7 @@ HESInformationControllerThread::HESInformationControllerThread(QObject *parent) 
 
 void HESInformationControllerThread::run()
 {
-    syncController = new HESInformationController();
+    informationController = new HESInformationController();
     emit setupDone();
     exec();
 }

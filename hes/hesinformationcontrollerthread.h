@@ -9,7 +9,7 @@ class HESInformationControllerThread : public QThread
 {
     Q_OBJECT
 public:
-    HESInformationController* syncController;
+    HESInformationController* informationController;
     explicit HESInformationControllerThread(QObject *parent = 0);
     void run();
 signals:

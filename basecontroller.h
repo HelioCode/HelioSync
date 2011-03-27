@@ -21,8 +21,8 @@ private:
     PeerWindow* peerWindow;
     SyncWindow* syncWindow;
     HESFunctionPeerThread* functionPeer;
-    HESInformationController* syncController;
-    HESInformationControllerThread* syncControllerThread;
+    HESInformationController* informationController;
+    HESInformationControllerThread* informationControllerThread;
 signals:
     void getSyncablePeers();
 public slots:

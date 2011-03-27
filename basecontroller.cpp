@@ -37,19 +37,19 @@ baseController::baseController(QObject *parent) :
 
     syncWindow = new SyncWindow();
 
-    syncControllerThread = new HESInformationControllerThread();
-    syncControllerThread->start();
-    connect(syncControllerThread, SIGNAL(setupDone()), this, SLOT(syncControllerSetupDone()));
+    informationControllerThread = new HESInformationControllerThread();
+    informationControllerThread->start();
+    connect(informationControllerThread, SIGNAL(setupDone()), this, SLOT(syncControllerSetupDone()));
 }
 
 void baseController::syncControllerSetupDone()
 {
-    syncController = syncControllerThread->syncController;
-    connect(syncController, SIGNAL(foundSyncablePeer(QString, QString, QString)), peerWindow, SLOT(displaySyncablePeer(QString, QString, QString)), Qt::QueuedConnection);
-    connect(syncController, SIGNAL(removeSyncablePeer(QString)), peerWindow, SLOT(removeSyncablePeer(QString)), Qt::QueuedConnection);
-    connect(this, SIGNAL(getSyncablePeers()), syncController, SLOT(getSyncablePeers()), Qt::QueuedConnection);
-    connect(peerWindow, SIGNAL(addIp(QHostAddress)), syncController, SLOT(addIp(QHostAddress)), Qt::QueuedConnection);
-    connect(peerWindow, SIGNAL(updatePeers()), syncController, SLOT(updateSyncablePeers()), Qt::QueuedConnection);
+    informationController = informationControllerThread->informationController;
+    connect(informationController, SIGNAL(foundSyncablePeer(QString, QString, QString)), peerWindow, SLOT(displaySyncablePeer(QString, QString, QString)), Qt::QueuedConnection);
+    connect(informationController, SIGNAL(removeSyncablePeer(QString)), peerWindow, SLOT(removeSyncablePeer(QString)), Qt::QueuedConnection);
+    connect(this, SIGNAL(getSyncablePeers()), informationController, SLOT(getSyncablePeers()), Qt::QueuedConnection);
+    connect(peerWindow, SIGNAL(addIp(QHostAddress)), informationController, SLOT(addIp(QHostAddress)), Qt::QueuedConnection);
+    connect(peerWindow, SIGNAL(updatePeers()), informationController, SLOT(updateSyncablePeers()), Qt::QueuedConnection);
 }
 
 void baseController::showPeerWindow()
@@ -61,7 +61,7 @@ void baseController::showPeerWindow()
 void baseController::peerWindowClosed()
 {
     peerWindow->restore();
-    syncController->stopGettingSyncableIps();
+    informationController->stopGettingSyncableIps();
 }
 
 void baseController::syncPeer(QHostAddress peer)
