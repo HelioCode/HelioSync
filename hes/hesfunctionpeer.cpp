@@ -14,7 +14,7 @@ HESFunctionPeer::HESFunctionPeer(QObject *parent) :
     connect(server, SIGNAL(newConnection()), this, SLOT(handleConnection()));
     server->listen(QHostAddress::Any, FUNCTIONPEER_PORT);
     udpSocket = new QUdpSocket();
-    udpSocket->bind(5678, QUdpSocket::ShareAddress);
+    udpSocket->bind(BROADCAST_PORT, QUdpSocket::ShareAddress);
     connect(udpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 }
 

@@ -12,10 +12,9 @@
 #include <math.h>
 
 #include "functions.h"
+#include "typedef.h"
 
 #include "hesfunctionconnection.h"
-
-#include <QtDebug>
 
 HESInformationController::HESInformationController(QObject *parent) :
     QObject(parent)
@@ -50,7 +49,7 @@ PeerInformation HESInformationController::retrieveInformation(QHostAddress addre
 void HESInformationController::getSyncablePeers()
 {
     QUdpSocket* udpSocket = new QUdpSocket(this);
-    udpSocket->writeDatagram(QByteArray("peer"), QHostAddress::Broadcast, 5678);
+    udpSocket->writeDatagram(QByteArray("peer"), QHostAddress::Broadcast, BROADCAST_PORT);
     peerServer->listen(QHostAddress::Any, PEERNOTIFYING_PORT);
     timer->start(5000);
     timerState = 0;
